@@ -1,0 +1,29 @@
+vp0:
+  image: hyperledger/fabric-peer:x86_64-0.6.1-preview
+  environment:
+    - CORE_PEER_ADDRESSAUTODETECT=true
+    - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+    - CORE_LOGGING_LEVEL=DEBUG
+    - CORE_PEER_ID=vp0
+    - CORE_PEER_ADDRESS=vp0:7051
+  volumes:
+      - /var/run/:/host/var/run/
+      - ./rainfall-insurance:/project/rainfall-insurance
+  command: peer node start 
+vp1:
+ extends: vp0
+ environment:
+    - CORE_PEER_ID=vp1
+    - CORE_PEER_DISCOVERY_ROOTNODE=vp0:7051
+ ports: 
+    - 7051:7051
+ links:
+    - vp0
+block0:
+ image: yeasy/blockchain-explorer
+ environment:
+    - HYP_REST_ENDPOINT=http://vp0:7050
+ links:
+    - vp0
+ ports:
+    - 9090:9090
